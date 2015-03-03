@@ -1,0 +1,84 @@
+---
+title: "An Introduction to R"
+author: "Daniel Kaplan"
+date: "March 3, 2015"
+output: ioslides_presentation
+runtime: shiny
+---
+
+## R for Python People
+
+```{r engine='python'}
+print("Hello, Data^3 Python People!")
+```
+
+```{r}
+"And to you also, R Folks!"
+```
+
+I'm orienting this talk to people who are familiar with programming ... but not necessarily either R or Python.
+
+## Outline
+
+1. Basic syntax of R
+2. The community of packages
+    * vetted and unvetted channels
+    * writing and distributing packages
+3. Data- and graphics-oriented packages
+    * simple data scraping
+    * some transformation, e.g. joins
+    * ggplot2
+    * dygraphs
+4. Integration with documents
+    * html & markdown
+5. Interactivity
+    * interactive documents
+    * apps
+
+## Good or Bad?
+
+A language ought to be evaluated based on its effectiveness for the purpose at hand.
+
+* Can people write the programs they need?
+* Does it facilitate using existing, appropriate tools?  
+* 
+
+## Shiny Presentation
+
+This R Markdown presentation is made interactive using Shiny. The viewers of the presentation can change the assumptions underlying what's presented and see the results immediately. 
+
+To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+## Slide with Interactive Plot
+
+```{r, echo=FALSE}
+inputPanel(
+  selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  
+  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  
+  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
+  lines(dens, col = "blue")
+})
+```
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Code and Output
+
+```{r}
+summary(cars)
+```
+
+
