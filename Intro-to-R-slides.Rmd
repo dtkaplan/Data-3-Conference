@@ -35,13 +35,130 @@ I'm orienting this talk to people who are familiar with programming ... but not 
     * interactive documents
     * apps
 
-## Good or Bad?
+## Is R better or worse than what I use now?
+
+Better or worse for what?
+
 
 A language ought to be evaluated based on its effectiveness for the purpose at hand.
 
 * Can people write the programs they need?
 * Does it facilitate using existing, appropriate tools?  
-* 
+
+Should be ...
+
+* Well or poorly suited to the task at hand
+* Meets constraints
+    * limited cognitive bandwidth & expertise in other domains
+    * storage space and time availability
+
+R has developed to serve needs of
+
+* data : this is relatively new as regards large-scale data.
+* statistics methods including modeling : always been strong at this
+* graphical and narrative presentation :
+* use by non-programmers, including students
+
+## Basic syntax
+
+Example from Jessens book or thinkPython
+
+Loops, conditionals, function definitions, simple objects & overloading
+
+## More advanced programming
+
+* functional language with lexical scoping
+* complex objects and methods
+* straightforward interface to C, C++, FORTRAN
+* web connectivity, curl, databases, internal http server, ...
+
+## Packages
+
+* Basic complete unit of software/data/documentation distribution
+* Analogous to Python modules (I think)
+* "Official" vetted channel: CRAN.  This is really just an allied service. [Show installation.]
+* "Task views" provide overviews by experts. [Show natural language task view.] Blogs provide commentary by ... Bloggers. vignettes provide narrative documentation. [Show R-Bloggers]. Large user community. [show usage surveys?]
+* Unofficial channels: e.g. GitHub.  These are full fledged packages. Just the distribution channel differs.
+* Development tools, e.g unit testing, profiling, debugging, style checking, ...
+
+## Example: mosaic
+
+* Install from CRAN
+* Function level documentation
+* Vignettes
+* Consistent template and symbolic computing.
+
+## Data- and graphics-oriented packages
+
+Too many to do justice to.  I'll focus on a couple, but keep in mind that you might prefer others.  There's competition, so constant development.
+
+* dplyr - SQL-like capabilities with a nicer syntax.
+* ggplot2
+* dyngraphs
+
+## Example setting
+
+Bike sharing system in Washington, DC
+
+Event table: times in lubridate format
+
+Location table
+
+DC shape file
+
+## Task 1
+
+A table of hourly use, weekdays and weekends
+
+## Task 2
+
+Density of use by hour for members and casuals
+
+## Task 3
+
+Net influx and outflux by station, by 10-minute intervals
+
+Plot by location. facet by time.  Then ... Slider for time.
+
+## Task 4
+
+Look at single user over time. Map out their use.
+
+Or, center on the most often used station and find variance of visits to other stations.
+
+## dyngraphs
+
+Long time series by day of week or weekend weekday
+
+## Original data format and scraping commands
+
+XML of stations
+
+Time and duration conversion
+
+
+## Package development
+
+Just show Hadley's book
+
+## integration with documents
+
+Show this document
+
+Change bootstrap theme
+
+Compile to Word?
+
+Fancy formatting: Show Data Computing book
+
+
+## Apps
+
+Show bicycle share app:
+
+1. On my computer
+2. Modify slightly and deploy to shinyio.org
+3. Invite them to run on their smartphones
 
 ## Shiny Presentation
 

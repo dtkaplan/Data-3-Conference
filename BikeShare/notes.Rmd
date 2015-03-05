@@ -1,0 +1,107 @@
+---
+title: "Bike Sharing in DC"
+author: "Daniel Kaplan"
+date: "March 4, 2015"
+output: html_document
+---
+
+```{r include=FALSE}
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+library("dygraphs")
+library("XML")
+```
+
+* Data from Capital BikeShare
+
+    * [Rental events](http://www.capitalbikeshare.com/trip-history-data)
+    * [Station info](https://www.capitalbikeshare.com/data/stations/bikeStations.xml).  Check to see if this is updated to get information on the number of bikes at each station at different times.
+
+* General Data
+
+    * [Shape file for DC]
+  
+## Cleaning and reorganizing the rental events 
+
+```{r}
+csv_name <- "2014-Q4-Trips-History-Data.csv"
+rda_name <- gsub(".csv", ".rda", csv_name)
+```
+
+```{r eval=FALSE}
+Bikes <- as.data.frame(data.table::fread(csv_name))
+```
+
+```{r eval=FALSE}
+Bikes <- 
+  Bikes %>%
+  rename(sdate=`Start date`, edate=`End date`, sstation=`Start Station`, estation=`End Station`,
+         bikeno=`Bike#`, client=`Subscription Type`, duration=Duration) %>%
+  mutate(sdate=lubridate::ymd_hm(sdate),
+         edate=lubridate::ymd_hm(edate))
+save(Bikes, file = rda_name)
+```
+
+## Reading the station info
+
+```{r}
+station_file <- "bikeStations.xml"
+xml_data <- XML::xmlParse(file = station_file) %>% xmlToList
+Stations <- sapply(xml_data, unlist) %>% as.data.frame %>% t %>% as.data.frame
+```
+
+```{r}
+load(rda_name)
+```
+
+## Task 1
+
+A table of hourly use, weekdays and weekends.
+
+```{r}
+Times <- 
+  Bikes %>%
+  mutate(hour = lubridate::hour(sdate), 
+         wday = lubridate::wday(sdate),
+         weekend = ifelse( wday==1 | wday==7, "Weekend", "Midweek") ) %>% 
+  group_by(hour, weekend)  %>%
+  summarise(count=n())
+```
+
+```{r fig.height=3,fig.width=5}
+ggplot(Times, aes(x=hour,y=count,group=weekend)) + 
+  geom_line(aes(color=weekend)) 
+```
+
+```{r}
+Bikes %>%
+  mutate(hour = lubridate::hour(sdate), 
+         wday = lubridate::wday(sdate),
+         hour_in_week = hour + 24 * (wday - 1)) %>% 
+  group_by(hour_in_week)  %>%
+  summarise(count=n()) %>% 
+  ggplot( aes(x=hour_in_week, y=count)) +
+  geom_line()
+```
+
+## Task 2
+
+Density of use by hour for members and casuals
+
+```{r}
+Bikes %>%
+  mutate(hour = lubridate::hour(sdate), 
+         wday = lubridate::wday(sdate),
+         hour_in_week = hour + 24 * (wday - 1)) %>% 
+  group_by(hour_in_week, client)  %>%
+  summarise(count = n()) %>% 
+  ggplot( aes(x = hour_in_week, y=count)) +
+  geom_line(aes(color = client))
+```
+
+## Task for DCF Statistics week
+
+Look at distribution of number of uses of various bicycles.
+
+
