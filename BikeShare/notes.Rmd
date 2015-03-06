@@ -3,9 +3,15 @@ title: "Bike Sharing in DC"
 author: "Daniel Kaplan"
 date: "March 4, 2015"
 output: html_document
+runtime: shiny
 ---
 
 ```{r include=FALSE}
+library("leafletR")
+# Install leaflet package
+if(!require(leaflet)) 
+  devtools::install_github("rstudio/leaflet")
+library(leaflet)
 library(lubridate)
 library(dplyr)
 library(ggplot2)
@@ -47,8 +53,12 @@ save(Bikes, file = rda_name)
 
 ```{r}
 station_file <- "bikeStations.xml"
-xml_data <- XML::xmlParse(file = station_file) %>% xmlToList
-Stations <- sapply(xml_data, unlist) %>% as.data.frame %>% t %>% as.data.frame
+xml_data <- XML::xmlParse(file = station_file) %>% (XML::xmlToList)
+Stations <- sapply(xml_data, unlist) %>% as.data.frame(stringsAsFactors = FALSE) %>% t %>% 
+  as.data.frame(stringsAsFactors = FALSE)
+Stations <- Stations[-nrow(Stations),]
+Stations$lat  <- as.numeric(Stations$lat)
+Stations$long <- as.numeric(Stations$long)
 ```
 
 ```{r}
@@ -60,11 +70,14 @@ load(rda_name)
 A table of hourly use, weekdays and weekends.
 
 ```{r}
-Times <- 
+Bikes <- 
   Bikes %>%
   mutate(hour = lubridate::hour(sdate), 
          wday = lubridate::wday(sdate),
-         weekend = ifelse( wday==1 | wday==7, "Weekend", "Midweek") ) %>% 
+         weekend = ifelse( wday==1 | wday==7, "Weekend", "Midweek"),
+         hour_in_week = hour + 24 * (wday - 1) )
+Times <-
+  Bikes %>% 
   group_by(hour, weekend)  %>%
   summarise(count=n())
 ```
@@ -76,9 +89,6 @@ ggplot(Times, aes(x=hour,y=count,group=weekend)) +
 
 ```{r}
 Bikes %>%
-  mutate(hour = lubridate::hour(sdate), 
-         wday = lubridate::wday(sdate),
-         hour_in_week = hour + 24 * (wday - 1)) %>% 
   group_by(hour_in_week)  %>%
   summarise(count=n()) %>% 
   ggplot( aes(x=hour_in_week, y=count)) +
@@ -91,15 +101,121 @@ Density of use by hour for members and casuals
 
 ```{r}
 Bikes %>%
-  mutate(hour = lubridate::hour(sdate), 
-         wday = lubridate::wday(sdate),
-         hour_in_week = hour + 24 * (wday - 1)) %>% 
   group_by(hour_in_week, client)  %>%
   summarise(count = n()) %>% 
   ggplot( aes(x = hour_in_week, y=count)) +
   geom_line(aes(color = client))
 ```
 
+## Map of the stations
+
+```{r}
+Sdata <- 
+  Stations %>% select(lat, long, nbBikes, nbEmptyDocks,name) 
+renderLeaflet({
+  leaflet(Sdata) %>% addTiles() %>% setView(-77.04, 38.9, zoom=12) %>%
+    addCircleMarkers(radius=Sdata$nbBikes) %>%
+    addCircleMarkers(radius=pmax(0,Sdata$nbEmptyDocks), color="red")
+})
+# renderLeaflet({
+#   leaflet(dat, dest=tempdir(), size=c(800,600),center=c(38.9, -77.04))
+#   })
+```
+
+```{r eval=FALSE}
+sliderInput('n', 'Number of markers', min = 1, max = 100, value = 30, step = 1)
+renderLeaflet({
+  n = input$n
+  df = data.frame(lat = rnorm(n, 42), lng = rnorm(n, -93))
+  leaflet(df) %>% addTiles() %>% addMarkers()
+})
+```
+
+
+
+
+## Time series
+
+Smooth and display
+
+
+## Task 3
+
+Net influx and outflux by station, smoothed by seconds
+```{r}
+smooth_scale <- 300 # seconds
+Bikes2 <-
+  Bikes %>% 
+  mutate(time_group = round(as.numeric(sdate)/smooth_scale)) %>%
+  group_by(time_group) %>%
+  summarise(when=min(sdate),count=n())
+```
+
+An example ...
+
+```{r}
+lungDeaths <- cbind(ldeaths, mdeaths, fdeaths)
+
+dygraph(lungDeaths, main = "Deaths from Lung Disease (UK)") %>%
+  dySeries("mdeaths", drawPoints = TRUE, color = "blue") %>%
+  dySeries("fdeaths", stepPlot = TRUE, color = "red")
+```
+
+```{r eval=FALSE}
+dygraph(Bikes2, main = "Bike Check-outs") %>%
+  dySeries("x", label = "number of bikes") %>% 
+  dyRangeSelector()
+```
+
+```{r}
+Outflux <-
+  Bikes %>%
+  group_by(sstation, hour) %>%
+  summarise(outcount = n())
+Influx <- 
+  Bikes %>%
+  group_by(estation, hour) %>%
+  summarize(incount = n())
+Both <- inner_join( Outflux, Influx, by=c("sstation"="estation", "hour"="hour"))
+```
+
+Bring in latitude and longitude information ...
+```{r}
+Out_and_influx <-
+  Stations %>% 
+  select(name, lat, long) %>%
+  left_join(Both, by=c("name"="sstation"))
+```
+
+```{r}
+Out_and_influx %>% 
+#  filter(hour == 6) %>%
+  ggplot(aes(x=long, y=lat)) +
+  geom_point(alpha = 0.2, color="blue", aes(size=outcount)) + 
+  geom_point(alpha = 0.2, color="green", aes(size=incount)) + 
+  scale_size_area() +
+  facet_wrap( ~ hour)
+```
+
+Plot by location. facet by time.  Then ... Slider for time.
+
+## Interactive?
+
+What time of day? `r sliderInput("hour", "Hour", min=0, max=23, value=12, step=1)`
+
+```{r  fig.width=9, fig.height=9} 
+p <- shiny::reactive( {Out_and_influx %>% 
+  filter(hour == input$hour) %>%
+  ggplot(aes(x=long, y=lat)) +
+  geom_point(alpha = 0.2, color="blue", aes(size=outcount)) + 
+  geom_point(alpha = 0.2, color="green", aes(size=incount)) + 
+  scale_size_area() +
+  ylim(38.85, 38.95) + xlim(-77.06,-76.98)} )
+```
+
+```{r}
+shiny::renderPlot(p())
+```
 ## Task for DCF Statistics week
 
 Look at distribution of number of uses of various bicycles.
