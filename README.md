@@ -4,6 +4,8 @@ A brief introduction to R for computer professionals who need to wrangle and pre
 
 [Link to slides](http://htmlpreview.github.com/?https://raw.githubusercontent.com/dtkaplan/Data-3-Conference/master/Intro-to-R-slides.html)
 
+[link to interactive map at slide 29](https://dtkaplan.shinyapps.io/2015-03-07-Data3/Intro-to-R-slides.Rmd#29)
+
 *Please note*: On slide 19 there is a command
 ```
 BikesRaw <- read.csv("BikeShare/2014-Q4-Trips-History-Data.csv")
