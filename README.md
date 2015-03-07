@@ -2,7 +2,17 @@
 
 A brief introduction to R for computer professionals who need to wrangle and present data.
 
-[Link to slides](Intro-to-R-slides.html)
+[Link to slides](http://htmlpreview.github.com/?https://raw.githubusercontent.com/dtkaplan/Data-3-Conference/master/Intro-to-R-slides.html)
+
+*Please note*: On slide 19 there is a command
+```
+BikesRaw <- read.csv("BikeShare/2014-Q4-Trips-History-Data.csv")
+```
+The `.csv` file is too large to put in this repository.  If you are recompiling the slides in RStudio, you will see that the Rmd document contains the actual line to use:
+```
+load("BikeShare/2014-Q4-Trips-History-Data.rda")
+```
+This will create the `Bikes` data frame.
 
 Presented at Data^3 2015, Minneapolis, MN on March 7, 2015
 
