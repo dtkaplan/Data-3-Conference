@@ -2,6 +2,8 @@
 
 A brief introduction to R for computer professionals who need to wrangle and present data.
 
+[Link to slides](Intro-to-R-slides.html)
+
 Presented at Data^3 2015, Minneapolis, MN on March 7, 2015
 
 ## The Ten Starting Steps
