@@ -47,6 +47,10 @@ An unconventional introduction ...
 * Provide support for doing actual work
 * Get you going quickly so that you can learn more by reading examples.
 
+presentation sources at    
+<http://github.com/dtkaplan/Data-3-Conference>
+
+
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment=NA, tidy=FALSE)
 options(width=66)
