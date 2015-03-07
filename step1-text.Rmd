@@ -1,0 +1,13 @@
+## Step 1: Start with Documents
+
+Within RStudio, use the editor to create Markdown documents.
+
+* Open a document using NewFile/RMarkdown/Document: use the defaults.
+* Compile to HTML
+
+![](edit-picture.png)
+
+## Step 2: Add simple R chunks
+
+```{r child="1-markdown.Rmd"}
+```

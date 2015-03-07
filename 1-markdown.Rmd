@@ -1,0 +1,11 @@
+Start with some arithmetic.
+
+```{r}
+3 + 5
+```
+
+### Numerics
+
+```{r}
+3 / 0
+```
